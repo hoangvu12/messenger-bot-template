@@ -29,20 +29,22 @@ login(
       if (message.type !== "message") return;
       if (!message.isGroup) return;
       if (!message.body.startsWith(PREFIX)) return;
+
+      try {
+        const args = message.body.slice(PREFIX.length).trim().split(/ +/g);
+        const command = args.shift().replace(/\./g, "_");
+  
+        if (typeof commands[command].execute !== "function") return;
+  
+        const userFunction = commands[command].execute;
+  
+        userFunction(message, args);
+      } catch (err) {
+        console.log(err);
+        api.sendMessage(`Error: ${err.message}`, message.senderID);
+      }
     });
 
-    try {
-      const args = message.body.slice(PREFIX.length).trim().split(/ +/g);
-      const command = args.shift().replace(/\./g, "_");
-
-      if (typeof commands[command].execute !== "function") return;
-
-      const userFunction = commands[command].execute;
-
-      userFunction(message, args);
-    } catch (err) {
-      console.log(err);
-      api.sendMessage(`Error: ${err.message}`, message.senderID);
-    }
+ 
   }
 );
